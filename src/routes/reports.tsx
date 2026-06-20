@@ -517,6 +517,17 @@ function ReportsPage() {
       await saveReport({ dataset_id: dataset.id, kind, title: content.title, storage_path: null });
       await qc.invalidateQueries({ queryKey: ["reports"] });
       toast.success(`${kind.toUpperCase()} report generated`);
+      if (typeof pendo !== "undefined") {
+        pendo.track("report_exported", {
+          format: kind,
+          dataset_id: dataset.id,
+          dataset_name: dataset.name,
+          has_kpis: !!kpis,
+          has_brief: !!brief,
+          has_consultant: !!consultant,
+          plan_count: plans.length,
+        });
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed");
     } finally {
@@ -575,6 +586,19 @@ function ReportsPage() {
         body,
       });
       toast.success(narrative ? "AI executive brief generated" : "Executive brief generated (built-in)");
+      if (typeof pendo !== "undefined") {
+        pendo.track("executive_brief_exported", {
+          dataset_id: dataset.id,
+          dataset_name: dataset.name,
+          health_score: healthScore,
+          growth_score: growthScore,
+          risk_score: riskScore,
+          execution_score: executionScore,
+          recommendation_count: recommendations.length,
+          risk_count: risks.length,
+          ai_narrative_used: !!narrative,
+        });
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed");
     } finally {

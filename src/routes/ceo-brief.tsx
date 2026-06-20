@@ -52,11 +52,23 @@ function CeoBriefPage() {
     if (!activeDatasetId || !dataset || !rows.length) return;
     setBusy(true);
     try {
+      const isRegeneration = !!brief;
       const kpis = computeKpis(rows, dataset.schema);
       const next = await generateCeoBrief({ dataset_id: activeDatasetId, kpis, rows, schema: dataset.schema });
       await saveCeoBrief(next);
       await qc.invalidateQueries({ queryKey: ["ceo-brief", activeDatasetId] });
       toast.success("CEO Brief regenerated");
+      if (typeof pendo !== "undefined") {
+        pendo.track("ceo_brief_generated", {
+          dataset_id: activeDatasetId,
+          dataset_name: dataset.name,
+          health_score: next.health_score,
+          risk_count: next.risks?.length ?? 0,
+          opportunity_count: next.opportunities?.length ?? 0,
+          priority_count: next.priorities?.length ?? 0,
+          is_regeneration: isRegeneration,
+        });
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed");
     } finally { setBusy(false); }

@@ -63,7 +63,7 @@ function ChatPage() {
 
   useEffect(() => { textareaRef.current?.focus(); }, []);
 
-  async function send(text: string) {
+  async function send(text: string, isQuickAction?: { label: string }) {
     if (!text.trim() || thinking) return;
     const userMsg: ChatMessage = {
       id: crypto.randomUUID(),
@@ -84,6 +84,24 @@ function ChatPage() {
         question: text.trim(),
       });
       setMessages((m) => [...m, reply]);
+      if (typeof pendo !== "undefined") {
+        pendo.track("copilot_message_sent", {
+          question_length: text.trim().length,
+          has_dataset: !!activeDatasetId,
+          dataset_id: activeDatasetId ?? "none",
+          routed_agent: reply.agent ?? "Copilot",
+          is_starter_prompt: STARTERS.includes(text.trim()),
+          conversation_length: messages.length + 2,
+        });
+        if (isQuickAction) {
+          pendo.track("copilot_quick_action_used", {
+            action_label: isQuickAction.label,
+            prompt_text: text.trim().slice(0, 200),
+            has_dataset: !!activeDatasetId,
+            dataset_id: activeDatasetId ?? "none",
+          });
+        }
+      }
     } finally {
       setThinking(false);
       setTimeout(() => textareaRef.current?.focus(), 0);
@@ -154,7 +172,7 @@ function ChatPage() {
               <button
                 key={label}
                 type="button"
-                onClick={() => void send(prompt)}
+                onClick={() => void send(prompt, { label })}
                 disabled={thinking}
                 className="inline-flex items-center gap-1.5 text-[11px] rounded-md border border-border/60 bg-background/40 hover:bg-background/70 px-2.5 py-1 transition-colors disabled:opacity-50"
               >

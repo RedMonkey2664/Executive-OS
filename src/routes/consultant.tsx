@@ -62,6 +62,7 @@ function ConsultantPage() {
     if (!activeDatasetId || !dataset || !rows.length) return;
     setBusy(true);
     try {
+      const isRegeneration = !!report;
       const kpis = computeKpis(rows, dataset.schema);
       const next = await generateConsultantReport({
         dataset_id: activeDatasetId,
@@ -72,6 +73,19 @@ function ConsultantPage() {
       await saveConsultantReport(next);
       await qc.invalidateQueries({ queryKey: ["consultant", activeDatasetId] });
       toast.success("Strategic findings regenerated for this dataset");
+      if (typeof pendo !== "undefined") {
+        pendo.track("consultant_report_generated", {
+          dataset_id: activeDatasetId,
+          dataset_name: dataset.name,
+          impact_score: next.impact_score,
+          roi_score: next.roi_score,
+          risk_score: next.risk_score,
+          problem_count: next.problems?.length ?? 0,
+          recommendation_count: next.recommendations?.length ?? 0,
+          investment_thesis_posture: next.investment_thesis?.posture ?? "none",
+          is_regeneration: isRegeneration,
+        });
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed");
     } finally {

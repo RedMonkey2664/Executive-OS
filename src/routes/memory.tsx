@@ -119,19 +119,44 @@ function ExecutiveMemoryPage() {
   );
 
   async function setStatus(id: string, s: DecisionStatus) {
+    const decision = memory.find((m) => m.id === id);
     try {
       await updateDecisionStatus(id, s);
       await qc.invalidateQueries({ queryKey: ["executive-decisions"] });
       toast.success(`Decision moved to ${s}`);
+      if (typeof pendo !== "undefined") {
+        const daysSince = decision ? Math.round((Date.now() - new Date(decision.created_at).getTime()) / 86400000) : 0;
+        pendo.track("decision_status_updated", {
+          decision_id: id,
+          decision_text: (decision?.decision ?? "").slice(0, 200),
+          new_status: s,
+          previous_status: decision?.status ?? "unknown",
+          consensus_score: decision?.consensus_score ?? 0,
+          confidence_score: decision?.confidence_score ?? 0,
+          days_since_created: daysSince,
+        });
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Update failed");
     }
   }
   async function remove(id: string) {
+    const decision = memory.find((m) => m.id === id);
     try {
       await deleteExecutiveDecision(id);
       await qc.invalidateQueries({ queryKey: ["executive-decisions"] });
       toast.success("Decision removed from memory");
+      if (typeof pendo !== "undefined") {
+        const daysSince = decision ? Math.round((Date.now() - new Date(decision.created_at).getTime()) / 86400000) : 0;
+        pendo.track("decision_deleted", {
+          decision_id: id,
+          decision_text: (decision?.decision ?? "").slice(0, 200),
+          status_at_deletion: decision?.status ?? "unknown",
+          consensus_score: decision?.consensus_score ?? 0,
+          owner: decision?.owner ?? "unknown",
+          days_since_created: daysSince,
+        });
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Delete failed");
     }

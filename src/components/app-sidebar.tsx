@@ -114,10 +114,19 @@ export function AppSidebar() {
   const [uploading, setUploading] = useState(false);
 
   async function handleDelete(id: string) {
+    const ds = datasets.find((d) => d.id === id);
+    const wasActive = activeDatasetId === id;
     await deleteDataset(id);
-    if (activeDatasetId === id) setActiveDatasetId(null);
+    if (wasActive) setActiveDatasetId(null);
     await qc.invalidateQueries({ queryKey: ["datasets"] });
     toast.success("Dataset removed");
+    if (typeof pendo !== "undefined") {
+      pendo.track("dataset_deleted", {
+        dataset_id: id,
+        dataset_name: ds?.name ?? "unknown",
+        was_active: wasActive,
+      });
+    }
   }
 
   async function handleUpload(file: File) {
@@ -299,7 +308,18 @@ export function AppSidebar() {
                       "group/ds flex items-center gap-2 rounded-lg px-2.5 py-2 cursor-pointer transition-colors",
                       active ? "bg-[var(--color-rose)]/18 text-sidebar-accent-foreground" : "text-sidebar-foreground/75 hover:bg-white/8",
                     )}
-                    onClick={() => setActiveDatasetId(d.id)}
+                    onClick={() => {
+                      const previousId = activeDatasetId;
+                      setActiveDatasetId(d.id);
+                      if (typeof pendo !== "undefined") {
+                        pendo.track("dataset_switched", {
+                          dataset_id: d.id,
+                          dataset_name: d.name,
+                          row_count: d.row_count,
+                          previous_dataset_id: previousId ?? "none",
+                        });
+                      }
+                    }}
                   >
                     <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", active ? "bg-[var(--color-rose)]" : "bg-sidebar-foreground/30")} />
                     <div className="min-w-0 flex-1">
