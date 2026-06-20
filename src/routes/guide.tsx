@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  Upload, MessageSquareText, Users, Crown, Brain, Compass, ArrowRight, Signal,
+  Upload, MessageSquareText, Users, Crown, Brain, ArrowRight, Signal,
   GitBranch, Activity, ListChecks, FileBarChart, ScrollText, Briefcase, SlidersHorizontal,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
@@ -121,9 +121,6 @@ function GuidePage() {
       <div className="mt-16 flex items-center gap-5">
         <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-foreground border-b border-foreground/25 pb-0.5 hover:border-foreground transition-colors">
           Go to the Dashboard <ArrowRight className="h-4 w-4" />
-        </Link>
-        <Link to="/boardroom" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-          <Compass className="h-4 w-4" /> Open the Boardroom
         </Link>
       </div>
     </>

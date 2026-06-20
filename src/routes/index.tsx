@@ -383,7 +383,7 @@ function ExecutiveBrief({
     t === "success" ? "text-success" : t === "destructive" ? "text-destructive" : t === "warning" ? "text-warning" : "text-foreground";
 
   return (
-    <section className="executive-card-hero rounded-3xl px-8 py-12 lg:px-16 lg:py-16">
+    <section className="executive-card-hero rounded-3xl px-8 py-9 lg:px-16 lg:py-11">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <span className="text-[11px] uppercase tracking-[0.34em] text-muted-foreground">{dateLabel}</span>
         <span className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.26em] text-secondary">
@@ -391,7 +391,7 @@ function ExecutiveBrief({
           {hasData ? "Brief composed" : "Standing by"}
         </span>
       </div>
-      <div className="masthead-rule mt-5 mb-10" />
+      <div className="masthead-rule mt-4 mb-7" />
 
       <p className="text-sm uppercase tracking-[0.3em] text-secondary mb-4">Today's Executive Brief</p>
       <h1 className="font-display text-5xl lg:text-7xl tracking-tight leading-[1.0] text-balance">
@@ -399,7 +399,7 @@ function ExecutiveBrief({
       </h1>
 
       {/* Key metrics */}
-      <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 max-w-3xl">
+      <div className="mt-9 grid grid-cols-1 sm:grid-cols-3 max-w-3xl">
         {metrics.map((m, i) => (
           <div
             key={m.label}
@@ -416,7 +416,7 @@ function ExecutiveBrief({
       </div>
 
       {/* Brief + recommended action */}
-      <div className="mt-14 grid lg:grid-cols-[1.5fr_1fr] gap-10 lg:gap-16 items-stretch">
+      <div className="mt-10 grid lg:grid-cols-[1.5fr_1fr] gap-10 lg:gap-16 items-stretch">
         <div>
           <div className="flex items-center gap-3 mb-6">
             <span className="text-[10px] uppercase tracking-[0.28em] text-muted-foreground">Summary</span>

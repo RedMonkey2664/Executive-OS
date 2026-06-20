@@ -68,45 +68,45 @@
   --font-display: "Cormorant Garamond", "Cormorant", Georgia, "Times New Roman", serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
 
-  --shadow-elegant: 0 1px 2px rgba(28, 47, 77, 0.05), 0 30px 70px -48px rgba(28, 47, 77, 0.28);
-  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.5) inset, 0 1px 2px rgba(28, 47, 77, 0.03);
+  --shadow-elegant: 0 1px 2px rgba(34, 53, 44, 0.05), 0 30px 70px -48px rgba(34, 53, 44, 0.28);
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.5) inset, 0 1px 2px rgba(34, 53, 44, 0.03);
 }
 
 :root {
   --radius: 1rem; /* luxury rounded — cards read at ~24px via rounded-2xl */
 
-  /* Parchment page background */
-  --background: #f8ebdc;
-  --foreground: #1c2f4d;
+  /* Neutral page background */
+  --background: #f8f5f0;
+  --foreground: #22352c;
 
   /* Glass-paper card surface */
   --card: rgba(255, 255, 255, 0.55);
-  --card-foreground: #1c2f4d;
+  --card-foreground: #22352c;
 
   /* Elevation tiers (translucent) */
   --surface-1: rgba(255, 255, 255, 0.42);
   --surface-2: rgba(255, 255, 255, 0.6);
   --surface-3: rgba(255, 255, 255, 0.78);
 
-  --popover: #fbf3e8;
-  --popover-foreground: #1c2f4d;
+  --popover: #fbfaf6;
+  --popover-foreground: #22352c;
 
-  /* Premium action — oxblood */
-  --primary: #400d01;
-  --primary-foreground: #f8ebdc;
+  /* Premium action — deep green */
+  --primary: #22352c;
+  --primary-foreground: #f8f5f0;
 
-  /* Rose accent doubles as decorative "secondary" used across the app */
-  --secondary: #d48d91;
-  --secondary-foreground: #3a0a06;
+  /* Gold accent doubles as decorative "secondary" used across the app */
+  --secondary: #c7a46a;
+  --secondary-foreground: #2a2113;
 
-  --muted: rgba(28, 47, 77, 0.06);
-  --muted-foreground: rgba(28, 47, 77, 0.74);
+  --muted: rgba(34, 53, 44, 0.06);
+  --muted-foreground: rgba(34, 53, 44, 0.74);
 
-  --accent: rgba(212, 141, 145, 0.16);
-  --accent-foreground: #1c2f4d;
+  --accent: rgba(199, 164, 106, 0.16);
+  --accent-foreground: #22352c;
 
   --destructive: #b0473d;
-  --destructive-foreground: #fbf3e8;
+  --destructive-foreground: #f8f5f0;
 
   --success: #5f8a6a;
   --success-foreground: #f4fbf5;
@@ -115,30 +115,30 @@
   --warning-foreground: #2a1c08;
 
   /* Named accents */
-  --rose: #d48d91;
-  --analytics: #93aebf;
-  --premium: #400d01;
+  --rose: #c7a46a;
+  --analytics: #7a877d;
+  --premium: #22352c;
 
-  --border: rgba(28, 47, 77, 0.1);
-  --input: rgba(28, 47, 77, 0.14);
-  --ring: rgba(212, 141, 145, 0.55);
+  --border: rgba(34, 53, 44, 0.1);
+  --input: rgba(34, 53, 44, 0.14);
+  --ring: rgba(199, 164, 106, 0.55);
 
-  /* Chart palette tuned to the parchment scheme */
-  --chart-1: #5e8aa0;   /* analytics slate */
-  --chart-2: #d48d91;   /* rose */
-  --chart-3: #1c2f4d;   /* prussian */
-  --chart-4: #c2922f;   /* ochre */
-  --chart-5: #6b2018;   /* oxblood */
+  /* Chart palette tuned to the green/gold scheme */
+  --chart-1: #7a877d;   /* sage */
+  --chart-2: #c7a46a;   /* gold */
+  --chart-3: #22352c;   /* deep green */
+  --chart-4: #b07d3a;   /* ochre */
+  --chart-5: #3d4a40;   /* deep sage-green */
 
-  /* Sidebar = Prussian blue */
-  --sidebar: #1c2f4d;
-  --sidebar-foreground: rgba(248, 235, 220, 0.88);
-  --sidebar-primary: #d48d91;
-  --sidebar-primary-foreground: #1c2f4d;
-  --sidebar-accent: rgba(212, 141, 145, 0.15);
-  --sidebar-accent-foreground: #f8ebdc;
-  --sidebar-border: rgba(248, 235, 220, 0.1);
-  --sidebar-ring: rgba(212, 141, 145, 0.5);
+  /* Sidebar = deep green */
+  --sidebar: #22352c;
+  --sidebar-foreground: rgba(248, 245, 240, 0.88);
+  --sidebar-primary: #c7a46a;
+  --sidebar-primary-foreground: #22352c;
+  --sidebar-accent: rgba(199, 164, 106, 0.15);
+  --sidebar-accent-foreground: #f8f5f0;
+  --sidebar-border: rgba(248, 245, 240, 0.1);
+  --sidebar-ring: rgba(199, 164, 106, 0.5);
 }
 
 .dark {
@@ -169,7 +169,7 @@ html {
 
 .scrollbar-slim {
   scrollbar-width: thin;
-  scrollbar-color: rgba(248, 235, 220, 0.22) transparent;
+  scrollbar-color: rgba(248, 245, 240, 0.22) transparent;
 }
 .scrollbar-slim::-webkit-scrollbar {
   width: 6px;
@@ -179,12 +179,12 @@ html {
   background: transparent;
 }
 .scrollbar-slim::-webkit-scrollbar-thumb {
-  background: rgba(248, 235, 220, 0.18);
+  background: rgba(248, 245, 240, 0.18);
   border-radius: 9999px;
   transition: background 0.2s ease;
 }
 .scrollbar-slim:hover::-webkit-scrollbar-thumb {
-  background: rgba(248, 235, 220, 0.32);
+  background: rgba(248, 245, 240, 0.32);
 }
 
 @layer base {
@@ -202,8 +202,8 @@ html {
     text-rendering: optimizeLegibility;
     letter-spacing: -0.003em;
     background-image:
-      radial-gradient(ellipse 72% 52% at 10% -10%, rgba(212, 141, 145, 0.12), transparent 60%),
-      radial-gradient(ellipse 64% 46% at 100% 4%, rgba(147, 174, 191, 0.12), transparent 62%);
+      radial-gradient(ellipse 72% 52% at 10% -10%, rgba(199, 164, 106, 0.12), transparent 60%),
+      radial-gradient(ellipse 64% 46% at 100% 4%, rgba(122, 135, 125, 0.12), transparent 62%);
     background-attachment: fixed;
   }
   h1, h2, h3, .font-display {
@@ -220,34 +220,34 @@ html {
   background: rgba(255, 255, 255, 0.55);
   backdrop-filter: blur(24px) saturate(120%);
   -webkit-backdrop-filter: blur(24px) saturate(120%);
-  border: 1px solid rgba(28, 47, 77, 0.08);
+  border: 1px solid rgba(34, 53, 44, 0.08);
   box-shadow: var(--shadow-card);
 }
 .executive-card-elevated {
   background: rgba(255, 255, 255, 0.72);
   backdrop-filter: blur(28px) saturate(125%);
   -webkit-backdrop-filter: blur(28px) saturate(125%);
-  border: 1px solid rgba(28, 47, 77, 0.1);
+  border: 1px solid rgba(34, 53, 44, 0.1);
   box-shadow: var(--shadow-elegant);
 }
 .surface-inset {
-  background: rgba(28, 47, 77, 0.035);
-  border: 1px solid rgba(28, 47, 77, 0.07);
+  background: rgba(34, 53, 44, 0.035);
+  border: 1px solid rgba(34, 53, 44, 0.07);
 }
 .executive-card-hero {
   background:
-    radial-gradient(135% 95% at 0% 0%, rgba(212, 141, 145, 0.14), transparent 55%),
-    radial-gradient(125% 100% at 100% 0%, rgba(147, 174, 191, 0.14), transparent 60%),
+    radial-gradient(135% 95% at 0% 0%, rgba(199, 164, 106, 0.14), transparent 55%),
+    radial-gradient(125% 100% at 100% 0%, rgba(122, 135, 125, 0.14), transparent 60%),
     rgba(255, 255, 255, 0.62);
   backdrop-filter: blur(30px) saturate(125%);
   -webkit-backdrop-filter: blur(30px) saturate(125%);
-  border: 1px solid rgba(28, 47, 77, 0.1);
+  border: 1px solid rgba(34, 53, 44, 0.1);
   box-shadow: var(--shadow-elegant);
 }
 
 /* ── Typographic / structural devices ────────────────────────────────── */
 .gradient-text {
-  background: linear-gradient(118deg, #1c2f4d 0%, #7c3b43 100%);
+  background: linear-gradient(118deg, #22352c 0%, #8a6a30 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -257,15 +257,15 @@ html {
 
 .accent-rule {
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(212, 141, 145, 0.7), transparent);
+  background: linear-gradient(90deg, transparent, rgba(199, 164, 106, 0.7), transparent);
 }
 .section-divider {
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(28, 47, 77, 0.12) 20%, rgba(28, 47, 77, 0.12) 80%, transparent);
+  background: linear-gradient(90deg, transparent, rgba(34, 53, 44, 0.12) 20%, rgba(34, 53, 44, 0.12) 80%, transparent);
 }
 .masthead-rule {
   height: 1px;
-  background: rgba(28, 47, 77, 0.18);
+  background: rgba(34, 53, 44, 0.18);
 }
 
 /* Sidebar active indicator — rose bar without layout shift */
@@ -291,7 +291,7 @@ html {
 }
 .workflow-icon {
   background: color-mix(in oklab, var(--c) 14%, white);
-  color: color-mix(in oklab, var(--c) 70%, #1c2f4d);
+  color: color-mix(in oklab, var(--c) 70%, #22352c);
   border: 1px solid color-mix(in oklab, var(--c) 30%, transparent);
   transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.4s ease, color 0.4s ease;
 }
@@ -320,7 +320,7 @@ html {
   opacity: 0.55;
 }
 .workflow-connector {
-  background: linear-gradient(90deg, transparent, rgba(28, 47, 77, 0.22), transparent);
+  background: linear-gradient(90deg, transparent, rgba(34, 53, 44, 0.22), transparent);
 }
 
 /* ── Global motion polish ────────────────────────────────────────────────
@@ -369,4 +369,97 @@ button,
   [data-sidebar="menu-sub-button"]:hover {
     transform: none;
   }
+}
+
+/* ── Custom cursor ───────────────────────────────────────────────────────
+ * A precise dot + an easing trailing ring. The native cursor is hidden only
+ * once JS has confirmed a fine pointer and added .has-custom-cursor. */
+.has-custom-cursor,
+.has-custom-cursor * {
+  cursor: none !important;
+}
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0;
+  will-change: transform;
+}
+.cursor-dot {
+  height: 7px;
+  width: 7px;
+  border-radius: 9999px;
+  background: var(--color-primary);
+  transition: opacity 0.25s ease, width 0.2s ease, height 0.2s ease, background 0.2s ease;
+}
+.cursor-ring {
+  height: 34px;
+  width: 34px;
+  border-radius: 9999px;
+  border: 1.5px solid color-mix(in oklab, var(--color-primary) 55%, transparent);
+  transition: opacity 0.3s ease, width 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    height 0.25s cubic-bezier(0.22, 1, 0.36, 1), background 0.25s ease, border-color 0.25s ease;
+}
+.cursor-ring--hover {
+  width: 52px;
+  height: 52px;
+  background: color-mix(in oklab, var(--color-rose) 16%, transparent);
+  border-color: color-mix(in oklab, var(--color-rose) 70%, transparent);
+}
+.cursor-dot--hover {
+  width: 5px;
+  height: 5px;
+  background: var(--color-rose);
+}
+.cursor-ring--down {
+  width: 26px;
+  height: 26px;
+  background: color-mix(in oklab, var(--color-primary) 14%, transparent);
+}
+
+/* ── Route loading bar ───────────────────────────────────────────────────
+ * Thin top progress bar shown while the router is navigating. */
+.route-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2.5px;
+  z-index: 10000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.route-progress[data-visible="true"] {
+  opacity: 1;
+}
+.route-progress__bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-rose), var(--color-analytics), var(--color-primary));
+  box-shadow: 0 0 10px color-mix(in oklab, var(--color-rose) 60%, transparent);
+  border-radius: 0 9999px 9999px 0;
+  transition: width 0.2s ease;
+}
+
+/* ── Spinner ─────────────────────────────────────────────────────────────
+ * Reusable loading spinner for pending states (e.g. <span class="spinner" />). */
+@keyframes spinner-rotate {
+  to { transform: rotate(360deg); }
+}
+.spinner {
+  display: inline-block;
+  height: 1.1em;
+  width: 1.1em;
+  border-radius: 9999px;
+  border: 2px solid color-mix(in oklab, var(--color-primary) 22%, transparent);
+  border-top-color: var(--color-rose);
+  animation: spinner-rotate 0.7s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation-duration: 1.4s; }
+  .route-progress__bar { transition: none; }
 }

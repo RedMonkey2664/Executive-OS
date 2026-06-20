@@ -15,6 +15,8 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/s
 import { AppSidebar } from "@/components/app-sidebar";
 import { DatasetProvider } from "@/lib/dataset-context";
 import { Toaster } from "@/components/ui/sonner";
+import { Cursor } from "@/components/cursor";
+import { RouteProgress } from "@/components/route-progress";
 import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
@@ -145,6 +147,8 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <DatasetProvider>
+        <RouteProgress />
+        <Cursor />
         <SidebarProvider>
           <div className="min-h-screen flex w-full">
             <AppSidebar />
@@ -159,7 +163,7 @@ function RootComponent() {
                   </span>
                 </div>
               </header>
-              <main className="flex-1 px-6 lg:px-12 xl:px-16 py-10 lg:py-16 max-w-[1500px] w-full mx-auto">
+              <main className="flex-1 px-6 lg:px-12 xl:px-16 pt-6 pb-10 lg:pt-8 lg:pb-16 max-w-[1500px] w-full mx-auto">
                 <div key={pathname} className="route-enter">
                   <Outlet />
                 </div>
