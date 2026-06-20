@@ -130,6 +130,17 @@ function DashboardPage() {
       setActiveDatasetId(ds.id);
       await qc.invalidateQueries({ queryKey: ["datasets"] });
       toast.success(`Uploaded ${ds.name} (${parsed.length.toLocaleString()} rows)`);
+      if (typeof pendo !== "undefined") {
+        pendo.track("dataset_uploaded", {
+          file_name: file.name,
+          file_type: file.name.split(".").pop()?.toLowerCase() || "unknown",
+          row_count: parsed.length,
+          column_count: Object.keys(parsed[0] ?? {}).length,
+          dataset_id: ds.id,
+          dataset_name: ds.name,
+          upload_source: "dashboard",
+        });
+      }
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Upload failed";
       toast.error(msg);

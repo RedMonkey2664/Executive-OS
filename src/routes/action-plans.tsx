@@ -249,11 +249,35 @@ function ExecutionCenterPage() {
     persist(next, msg);
   }
   function removeOne(id: string) {
+    const initiative = initiatives.find((i) => i.id === id);
     persist(initiatives.filter((i) => i.id !== id), "Initiative removed");
     setSelectedId(null);
+    if (typeof pendo !== "undefined" && initiative) {
+      pendo.track("initiative_deleted", {
+        initiative_id: id,
+        initiative_title: initiative.title.slice(0, 100),
+        status_at_deletion: initiative.status,
+        owner: initiative.owner,
+        source: initiative.source,
+        progress_at_deletion: initiative.progress,
+      });
+    }
   }
   function addInitiative(init: ExecInitiative) {
     persist([init, ...initiatives], "Initiative added");
+    if (typeof pendo !== "undefined") {
+      pendo.track("initiative_created", {
+        title: init.title.slice(0, 100),
+        owner: init.owner,
+        priority: init.priority,
+        risk: init.risk,
+        due_days: init.dueDays,
+        revenue_impact: init.revenueImpact,
+        profit_impact: init.profitImpact,
+        confidence: init.confidence,
+        source: init.source,
+      });
+    }
   }
 
   // --- Generate initiatives from upstream outputs
@@ -363,6 +387,20 @@ function ExecutionCenterPage() {
       return;
     }
     await persist([...fresh, ...initiatives], `${fresh.length} initiatives synced from strategy layer`);
+    if (typeof pendo !== "undefined") {
+      const sources: string[] = [];
+      if (deriveInitiatives(bi).length) sources.push("Mission");
+      if ((brief?.priorities ?? []).length) sources.push("CEO Brief");
+      if ((report?.recommendations ?? []).length) sources.push("Consultant");
+      if (boardroom.length) sources.push("Boardroom");
+      pendo.track("initiatives_synced_from_strategy", {
+        synced_count: fresh.length,
+        total_initiatives_after: fresh.length + initiatives.length,
+        existing_count: initiatives.length,
+        sources_with_data: sources.join(", "),
+        dataset_id: activeDatasetId ?? "none",
+      });
+    }
   }
 
   // --- Aggregates
@@ -446,9 +484,29 @@ function ExecutionCenterPage() {
           reasoning: a.reasoning,
           confidence: Math.max(0, Math.min(100, Math.round(a.confidence))),
         })));
+        if (typeof pendo !== "undefined") {
+          pendo.track("ai_execution_advisor_run", {
+            initiative_count: initiatives.length,
+            blocker_count: blockers.length,
+            kpi_target_count: kpiTargets.length,
+            ai_success: true,
+            advice_count: parsed.data.advice.slice(0, 4).length,
+            dataset_id: activeDatasetId ?? "none",
+          });
+        }
         setAdvisorBusy(false);
         return;
       }
+    }
+    if (typeof pendo !== "undefined") {
+      pendo.track("ai_execution_advisor_run", {
+        initiative_count: initiatives.length,
+        blocker_count: blockers.length,
+        kpi_target_count: kpiTargets.length,
+        ai_success: false,
+        advice_count: 0,
+        dataset_id: activeDatasetId ?? "none",
+      });
     }
     setAdvisorError(res.ok ? "AI advisor returned a malformed answer, showing built-in recommendations." : "AI advisor unavailable, showing built-in recommendations.");
     setAdvisorBusy(false);
@@ -563,12 +621,24 @@ function ExecutionCenterPage() {
                       <td className="py-3 pr-4">
                         <Select
                           value={i.status}
-                          onValueChange={(v) =>
+                          onValueChange={(v) => {
+                            const previousStatus = i.status;
                             updateOne(i.id, {
                               status: v as ExecStatus,
                               progress: v === "Completed" ? 100 : i.progress,
-                            })
-                          }
+                            });
+                            if (typeof pendo !== "undefined") {
+                              pendo.track("initiative_status_updated", {
+                                initiative_id: i.id,
+                                initiative_title: i.title.slice(0, 100),
+                                new_status: v,
+                                previous_status: previousStatus,
+                                owner: i.owner,
+                                priority: i.priority,
+                                progress: v === "Completed" ? 100 : i.progress,
+                              });
+                            }
+                          }}
                         >
                           <SelectTrigger
                             className={`h-7 text-[10px] uppercase tracking-wider w-32 border ${statusTone[i.status]}`}
@@ -810,6 +880,17 @@ function ExecutionCenterPage() {
                               progress: prog,
                               status: prog === 100 ? "Completed" : selected.status === "Planned" ? "In Progress" : selected.status,
                             });
+                            if (typeof pendo !== "undefined") {
+                              pendo.track("initiative_milestone_toggled", {
+                                initiative_id: selected.id,
+                                initiative_title: selected.title.slice(0, 100),
+                                milestone_title: m.title.slice(0, 100),
+                                done: !m.done,
+                                milestone_index: selected.milestones.findIndex((x) => x.id === m.id),
+                                total_milestones: selected.milestones.length,
+                                new_progress: prog,
+                              });
+                            }
                           }}
                           className={`h-5 w-5 rounded-full grid place-items-center border ${m.done ? "bg-success/20 border-success" : "border-border/60"}`}
                         >

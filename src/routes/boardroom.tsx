@@ -298,6 +298,14 @@ function BoardroomPage() {
     const id = crypto.randomUUID();
     setSession({ id, startedAt: new Date().toISOString(), datasetId: activeDatasetId });
     toast.success("Executive meeting in session, agents are reasoning live");
+    if (typeof pendo !== "undefined") {
+      pendo.track("boardroom_session_started", {
+        dataset_id: activeDatasetId ?? "none",
+        topic,
+        agent_count: debate.responses.length,
+        has_prior_meetings: meetings.length > 0,
+      });
+    }
     void runLiveDebate();
   }
 
@@ -341,6 +349,22 @@ function BoardroomPage() {
         qc.invalidateQueries({ queryKey: ["executive-decisions", activeDatasetId] }),
         qc.invalidateQueries({ queryKey: ["executive-decisions"] }),
       ]);
+      if (typeof pendo !== "undefined") {
+        pendo.track("boardroom_meeting_recorded", {
+          topic,
+          consensus_score: decision.consensusScore,
+          confidence_score: decision.confidence,
+          risk_level: decision.riskLevel,
+          revenue_impact: decision.expectedRevenueImpact,
+          profit_impact: decision.expectedProfitImpact,
+          owner: decision.recommendedOwner,
+          timeline: decision.timeline,
+          next_actions_count: decision.nextActions.length,
+          agent_count: responses.length,
+          dataset_id: activeDatasetId ?? "none",
+          session_id: session?.id ?? "none",
+        });
+      }
       setSession(null);
       toast.success("Meeting recorded · decision committed to Executive Memory");
     } catch (e) {
@@ -399,6 +423,17 @@ function BoardroomPage() {
       let okCount = 0;
       for (const entry of results) { if (entry) { next[entry[0]] = entry[1]; okCount++; } }
       setAiAgents(next);
+      if (typeof pendo !== "undefined") {
+        pendo.track("boardroom_debate_run", {
+          topic,
+          agent_count: debate.responses.length,
+          successful_agent_count: okCount,
+          failed_agent_count: debate.responses.length - okCount,
+          dataset_id: activeDatasetId ?? "none",
+          is_rerun: Object.keys(aiAgents).length > 0,
+          debate_error: okCount === 0 ? "all_agents_failed" : "none",
+        });
+      }
       if (okCount === 0) setDebateError("The AI brain is unavailable, showing the built-in debate. Check the server's GEMINI_API_KEY.");
     } catch (e) {
       if (runId === debateRunId.current) setDebateError(e instanceof Error ? e.message : "Live debate failed.");
@@ -510,7 +545,17 @@ function BoardroomPage() {
               <Input value={topic} onChange={(e) => setTopic(e.target.value)} className="bg-background/40 font-display text-base h-12 transition-shadow focus-visible:ring-2 focus-visible:ring-primary/40" placeholder="What should the board debate?" />
               <div className="flex flex-wrap gap-2">
                 {QUICK_QUESTIONS.map((q) => (
-                  <button key={q} onClick={() => setTopic(q)} className={`text-xs rounded-full px-3 py-1.5 border transition-colors ${topic === q ? "bg-primary/20 border-primary text-foreground" : "border-border/60 text-muted-foreground hover:text-foreground"}`}>{q}</button>
+                  <button key={q} onClick={() => {
+                    setTopic(q);
+                    if (typeof pendo !== "undefined") {
+                      pendo.track("boardroom_question_submitted", {
+                        topic: q,
+                        is_preset_question: true,
+                        dataset_id: activeDatasetId ?? "none",
+                        has_scenario: !!scenario,
+                      });
+                    }
+                  }} className={`text-xs rounded-full px-3 py-1.5 border transition-colors ${topic === q ? "bg-primary/20 border-primary text-foreground" : "border-border/60 text-muted-foreground hover:text-foreground"}`}>{q}</button>
                 ))}
               </div>
               <div className="flex flex-wrap items-center gap-3 pt-1">

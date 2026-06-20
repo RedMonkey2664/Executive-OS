@@ -100,10 +100,20 @@ function MissionControlPage() {
   });
 
   async function setDecisionStatus(id: string, s: DecisionStatus) {
+    const decision = decisions.find((d) => d.id === id);
     try {
       await updateDecisionStatus(id, s);
       await qc.invalidateQueries({ queryKey: ["executive-decisions"] });
       toast.success(`Decision moved to ${s}`);
+      if (typeof pendo !== "undefined") {
+        pendo.track("decision_status_updated_mission", {
+          decision_id: id,
+          new_status: s,
+          previous_status: decision?.status ?? "unknown",
+          decision_text: (decision?.decision ?? "").slice(0, 200),
+          source_page: "mission_control",
+        });
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Update failed");
     }
@@ -139,6 +149,17 @@ function MissionControlPage() {
         const nextIdx = Math.max(0, Math.min(COLUMNS.length - 1, idx + dir));
         const status = COLUMNS[nextIdx];
         toast.success(`${i.title} → ${status}`);
+        if (typeof pendo !== "undefined") {
+          pendo.track("initiative_status_moved", {
+            initiative_id: i.id,
+            initiative_title: i.title.slice(0, 100),
+            from_status: i.status,
+            to_status: status,
+            direction: dir === 1 ? "forward" : "backward",
+            owner: i.owner,
+            priority: i.priority,
+          });
+        }
         return { ...i, status };
       }),
     );
