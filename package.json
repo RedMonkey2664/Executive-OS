@@ -11,6 +11,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "vitest run",
+    "db:setup": "tsx scripts/db-setup.ts",
     "eval:agent": "tsx scripts/eval-agent.ts"
   },
   "dependencies": {
