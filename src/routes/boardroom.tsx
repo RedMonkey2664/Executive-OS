@@ -458,7 +458,9 @@ function BoardroomPage() {
           insight: d.insight,
           recommendation: d.recommendation,
           rationale: d.rationale,
-          confidence: Math.round(d.confidence),
+          // Some models return confidence as a 0-1 fraction despite the prompt;
+          // normalize so 0.85 shows as 85%, not 1%.
+          confidence: Math.round(d.confidence > 0 && d.confidence <= 1 ? d.confidence * 100 : d.confidence),
           support: stanceToSupport(d.stance),
         };
       }

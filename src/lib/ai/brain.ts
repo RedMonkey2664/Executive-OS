@@ -221,7 +221,7 @@ export function buildBoardroomDebatePrompt(params: {
     "BOARD MEMBERS:",
     roster,
     "Return ONLY a valid JSON object (no markdown, no fences) with this exact shape:",
-    '{ "agents": [ { "agent": string (must match one of the member names above), "observation": string, "insight": string, "recommendation": string, "rationale": string, "stance": "Support"|"Conditional"|"Neutral"|"Oppose", "confidence": number(0-100), "referencedData": string[], "referencedDecisions": string[] } ] }',
+    '{ "agents": [ { "agent": string (must match one of the member names above), "observation": string, "insight": string, "recommendation": string, "rationale": string, "stance": "Support"|"Conditional"|"Neutral"|"Oppose", "confidence": whole number 0-100 (e.g. 85, never a 0-1 fraction), "referencedData": string[], "referencedDecisions": string[] } ] }',
     "Keep each field concise (1-3 sentences). Distinct members should reach distinct, role-consistent conclusions — they will not all agree.",
   ].join("\n");
   const user = [
