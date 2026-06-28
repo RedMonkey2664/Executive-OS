@@ -1,5 +1,5 @@
 // Live AI-brain status chip. Calls the pingBrain server function (a real, tiny
-// AWS Bedrock call) on mount and shows the result next to the Aurora chip, so a
+// Google Gemini call) on mount and shows the result next to the Aurora chip, so a
 // single header screenshot proves both the AWS database and the AI brain are
 // live. CLICK the chip to re-check on demand (e.g. right after enabling model
 // access) without a full page reload. Short stale window so it self-heals.
@@ -25,7 +25,7 @@ export function BrainStatus() {
   const border = ok ? "border-success/30" : checking ? "border-border" : "border-destructive/30";
   const text = ok ? "text-success" : checking ? "text-muted-foreground" : "text-destructive";
 
-  const label = checking ? "Bedrock · checking" : ok ? "Bedrock · connected" : "Bedrock · offline";
+  const label = checking ? "Gemini · checking" : ok ? "Gemini · connected" : "Gemini · offline";
   const reason =
     data && data.ok
       ? `Live AI brain — ${data.model} · ${data.latencyMs}ms`
@@ -33,7 +33,7 @@ export function BrainStatus() {
         ? "Could not reach the AI brain server function."
         : data && !data.ok
           ? `${data.code}: ${data.message}`
-          : "Checking the Bedrock AI brain…";
+          : "Checking the Gemini AI brain…";
   const title = `${reason}\n(click to re-check)`;
 
   return (

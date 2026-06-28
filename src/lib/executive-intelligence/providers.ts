@@ -1,8 +1,8 @@
 // LLM Provider Registry — the providers ExecutiveOS actually runs against.
-// Only AWS Bedrock is wired and used (see lib/ai/gemini.server.ts). Live
+// Only Google Gemini is wired and used (see lib/ai/gemini.server.ts). Live
 // connection status is fetched at runtime from the server, not declared here.
 // NOTE: the id stays "gemini" as a stable internal key/discriminator; only the
-// display fields below reflect the actual provider (AWS Bedrock).
+// display fields below reflect the actual provider (Google Gemini).
 export type ProviderId = "gemini";
 
 export interface ProviderInfo {
@@ -17,11 +17,11 @@ export interface ProviderInfo {
 export const PROVIDERS: ProviderInfo[] = [
   {
     id: "gemini",
-    label: "AWS Bedrock",
-    vendor: "Amazon Web Services",
-    defaultModel: "Claude 3 Haiku (Bedrock)",
+    label: "Google Gemini",
+    vendor: "Google",
+    defaultModel: "Gemini 2.5 Flash-Lite (free tier)",
     connected: false, // resolved live at runtime from the server status
-    notes: "Live provider. Runs the AI agents via server-side AWS Bedrock credentials.",
+    notes: "Live provider. Runs the AI agents via a server-side Gemini API key (free tier).",
   },
 ];
 

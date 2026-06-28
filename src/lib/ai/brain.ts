@@ -5,8 +5,8 @@
 //   • exposes a loading/error/data hook (useBrain) for interactive components.
 //
 // No route or service file should call executeBrain directly or build its own
-// fetch — they import from here. Provider is AWS Bedrock (see gemini.server.ts);
-// AWS credentials are read server-side only.
+// fetch — they import from here. Provider is Google Gemini (see gemini.server.ts);
+// the Gemini API key is read server-side only.
 import { useCallback, useRef, useState } from "react";
 import {
   executeBrain,
@@ -57,7 +57,7 @@ export async function callBrain(req: BrainRequest): Promise<BrainResult> {
 export function brainErrorMessage(error: BrainError): string {
   switch (error.code) {
     case "missing_key":
-      return "The AI brain is not configured (AWS Bedrock credentials missing or model access not enabled on the server). Showing the built-in analysis instead.";
+      return "The AI brain is not configured (the Gemini API key missing or model access not enabled on the server). Showing the built-in analysis instead.";
     case "rate_limit":
       return "The AI brain is rate-limited right now. Please try again in a moment.";
     case "budget_exceeded":
