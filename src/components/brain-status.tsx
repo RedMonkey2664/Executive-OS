@@ -20,12 +20,42 @@ export function BrainStatus() {
   });
 
   const ok = !!data && data.ok === true;
+  // A rate-limit / spent-budget is NOT "offline" — the brain is configured and
+  // reachable, just momentarily throttled (it self-recovers). Show it as an amber
+  // "rate-limited" state instead of the red "offline" used for real failures
+  // (missing key, model access, network).
+  const limited =
+    !!data && data.ok === false && (data.code === "rate_limit" || data.code === "budget_exceeded");
   const checking = isLoading || isFetching;
-  const dot = checking ? "bg-muted-foreground animate-pulse" : ok ? "bg-success shadow-[0_0_8px_var(--color-success)]" : "bg-destructive";
-  const border = ok ? "border-success/30" : checking ? "border-border" : "border-destructive/30";
-  const text = ok ? "text-success" : checking ? "text-muted-foreground" : "text-destructive";
+  const dot = checking
+    ? "bg-muted-foreground animate-pulse"
+    : ok
+      ? "bg-success shadow-[0_0_8px_var(--color-success)]"
+      : limited
+        ? "bg-amber-500 shadow-[0_0_8px_#f59e0b]"
+        : "bg-destructive";
+  const border = ok
+    ? "border-success/30"
+    : checking
+      ? "border-border"
+      : limited
+        ? "border-amber-500/40"
+        : "border-destructive/30";
+  const text = ok
+    ? "text-success"
+    : checking
+      ? "text-muted-foreground"
+      : limited
+        ? "text-amber-600"
+        : "text-destructive";
 
-  const label = checking ? "Gemini · checking" : ok ? "Gemini · connected" : "Gemini · offline";
+  const label = checking
+    ? "Gemini · checking"
+    : ok
+      ? "Gemini · connected"
+      : limited
+        ? "Gemini · rate-limited"
+        : "Gemini · offline";
   const reason =
     data && data.ok
       ? `Live AI brain — ${data.model} · ${data.latencyMs}ms`

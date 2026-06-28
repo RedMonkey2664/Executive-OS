@@ -55,14 +55,18 @@ const MAX_OUTPUT_TOKENS = (() => {
   return Number.isFinite(v) && v > 0 ? v : 4096;
 })();
 
-// Free-tier model chain, ordered MOST-generous-quota first. flash-lite models
-// have the highest free requests-per-minute / per-day allowances, so leading
-// with them minimises the chance of hitting a limit; the fuller flash model is
-// the last-resort fallback. GEMINI_MODEL (resolved by the caller) overrides the
-// lead model. Callers that pass a non-Gemini id (e.g. an old "gemini-2.5-pro"
-// judge model) still work — it's just prepended and tried first.
+// Free-tier model chain. Each model has its OWN separate daily free quota, so
+// listing several gives the app more total daily headroom and a real fallback
+// when one model is momentarily rate-limited or its daily quota is spent. Order
+// matters: lead with flash-lite (fastest + highest per-minute allowance), then
+// 2.5-flash (independent quota), then the 2.0 models as a last resort. If the
+// lead model is briefly throttled, the next one keeps the app live instead of
+// falling straight to the built-in fallback. GEMINI_MODEL (resolved by the
+// caller) overrides the lead model; a non-Gemini id is just prepended and tried
+// first.
 const DEFAULT_MODEL_CHAIN = [
   "gemini-2.5-flash-lite",
+  "gemini-2.5-flash",
   "gemini-2.0-flash-lite",
   "gemini-2.0-flash",
 ];
