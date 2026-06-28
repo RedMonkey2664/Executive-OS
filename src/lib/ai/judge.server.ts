@@ -1,7 +1,9 @@
 // Independent LLM-as-judge for the insight agent's free-text quality. Uses a
-// DISTINCT Gemini model from the agent (gemini-2.5-pro) at temperature 0, and
-// requires structured JSON back. The judge receives the original input metrics
-// so it can flag any number the agent invented that is not in the input.
+// Flash model (gemini-flash-latest) so the eval runs within free-tier quota —
+// switched from gemini-2.5-pro, which is not available on the free tier. It is
+// still a distinct model id from the agent's pinned gemini-2.5-flash. The judge
+// requires structured JSON back and receives the original input metrics so it
+// can flag any number the agent invented that is not in the input.
 import { z } from "zod";
 import { executeGeminiPrompt } from "./gemini.server";
 
@@ -57,7 +59,7 @@ export type Judge = (
   output: AgentOutput,
 ) => Promise<JudgeVerdict>;
 
-export const JUDGE_MODEL = "gemini-2.5-pro";
+export const JUDGE_MODEL = "gemini-flash-latest";
 
 function buildJudgePrompt(s: GoldenScenario, o: AgentOutput) {
   const system = [
