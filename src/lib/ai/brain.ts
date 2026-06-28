@@ -202,6 +202,40 @@ export function buildBoardroomAgentPrompt(params: {
   return { system, user };
 }
 
+// Whole-board debate in a SINGLE model call. The boardroom used to make one
+// call per agent (~7 calls), which burns through free-tier quota and trips the
+// per-minute limit. This asks the model to answer as every board member at once
+// and return one JSON array — 7x fewer calls, far more reliable on the free tier.
+export function buildBoardroomDebatePrompt(params: {
+  agents: { agent: string; role: string }[];
+  topic: string;
+  intel: BusinessIntelligence | null;
+  kpis: KpiSummary | null;
+  priorDecisions?: string[];
+}): { system: string; user: string } {
+  const roster = params.agents.map((a) => `- ${a.agent}: ${a.role}`).join("\n");
+  const system = [
+    "You are simulating an executive board debate. Each board member argues STRICTLY from their own role's lens, grounded only in the supplied data.",
+    `Boardroom rules: ${boardroomAgentBrain.guardrails.join("; ")}.`,
+    "Produce exactly ONE response for EVERY board member listed below, in the same order.",
+    "BOARD MEMBERS:",
+    roster,
+    "Return ONLY a valid JSON object (no markdown, no fences) with this exact shape:",
+    '{ "agents": [ { "agent": string (must match one of the member names above), "observation": string, "insight": string, "recommendation": string, "rationale": string, "stance": "Support"|"Conditional"|"Neutral"|"Oppose", "confidence": number(0-100), "referencedData": string[], "referencedDecisions": string[] } ] }',
+    "Keep each field concise (1-3 sentences). Distinct members should reach distinct, role-consistent conclusions — they will not all agree.",
+  ].join("\n");
+  const user = [
+    groundingBlock(params.intel, params.kpis),
+    params.priorDecisions?.length
+      ? `\nPRIOR DECISIONS:\n${params.priorDecisions.map((d) => "• " + d).join("\n")}`
+      : "",
+    `\nBOARD QUESTION:\n${params.topic}`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+  return { system, user };
+}
+
 // Execution Advisor (JSON list)
 const ADVISOR_SYSTEM = [
   "You are the AI Execution Advisor. Given the live execution state, KPIs and risks, return ONLY a valid JSON object (no markdown, no fences):",

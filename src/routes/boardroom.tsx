@@ -69,7 +69,7 @@ import { computeAgentInfluence, type AgentInfluence } from "@/lib/executive-inte
 import { executeCEO, getGeminiStatus, type ExecuteCEOResult } from "@/lib/agents/executeCEO.functions";
 import { pingBrain } from "@/lib/agents/executeBrain.functions";
 import { useServerFn } from "@tanstack/react-start";
-import { callBrain, buildBoardroomAgentPrompt, brainErrorMessage, type BrainError } from "@/lib/ai/brain";
+import { callBrain, buildBoardroomDebatePrompt, brainErrorMessage } from "@/lib/ai/brain";
 import { AgentResponseSchema } from "@/lib/schemas/agentResponse";
 
 export const Route = createFileRoute("/boardroom")({
@@ -398,11 +398,11 @@ function BoardroomPage() {
 
   const stanceToSupport = (s: string) => (s === "Support" ? 85 : s === "Conditional" ? 65 : s === "Neutral" ? 50 : 25);
 
-  // Run a real AI debate, one Google Gemini call per board agent, grounded in the
-  // dataset. Calls are made SEQUENTIALLY (not all at once) so the burst of ~7
-  // requests doesn't trip Gemini's free-tier per-minute limit and force the whole
-  // board onto the built-in fallback. Heuristic responses remain as the fallback
-  // for any individual agent whose call fails or returns a malformed payload.
+  // Run a real AI debate in a SINGLE Google Gemini call: the model answers as
+  // every board member at once and returns one JSON array. This is ~7x cheaper
+  // than one-call-per-agent and avoids the free-tier per-minute burst that forced
+  // the whole board onto the built-in fallback. Any agent the model omits or
+  // returns malformed simply keeps its built-in heuristic response.
   async function runLiveDebate() {
     if (!intel || debateBusy) return;
     const runId = ++debateRunId.current;
@@ -410,61 +410,61 @@ function BoardroomPage() {
     setDebateError(null);
     const priorDecisions = context.relatedDecisions.related.slice(0, 4).map((d) => d.decision);
     try {
-      const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
-      const runAgent = async (r: (typeof debate.responses)[number]) => {
-        const { system, user } = buildBoardroomAgentPrompt({ agent: r.agent, role: r.role, topic, intel, kpis, priorDecisions });
-        let res = await callBrain({ section: `boardroom-${r.agent}`, system, user, json: true });
-        // One gentle retry if this agent hit the per-minute rate limit, so a single
-        // transient 429 doesn't drop the agent to the heuristic fallback.
-        if (!res.ok && res.error.code === "rate_limit") {
-          await sleep(2500);
-          res = await callBrain({ section: `boardroom-${r.agent}`, system, user, json: true });
-        }
-        if (!res.ok) return { ok: false as const, error: res.error };
-        if (!res.parsed) return { ok: false as const, error: { code: "empty_response", message: "Empty response" } as BrainError };
-        const parsed = AgentResponseSchema.safeParse(res.parsed);
-        if (!parsed.success) return { ok: false as const, error: { code: "schema_invalid", message: "Schema validation failed" } as BrainError };
-        const d = parsed.data;
-        return {
-          ok: true as const,
-          agent: r.agent,
-          reply: {
-            observation: d.observation,
-            insight: d.insight,
-            recommendation: d.recommendation,
-            rationale: d.rationale,
-            confidence: Math.round(d.confidence),
-            support: stanceToSupport(d.stance),
-          } as AiAgentReply,
-        };
-      };
+      const roster = debate.responses.map((r) => ({ agent: r.agent, role: r.role }));
+      const { system, user } = buildBoardroomDebatePrompt({ agents: roster, topic, intel, kpis, priorDecisions });
 
-      // Sequential, paced calls keep us under the free-tier requests-per-minute
-      // limit (the cause of the "rate-limited" built-in fallback when all agents
-      // fired at once). ~1.5s between agents is plenty of headroom.
-      const results: Array<Awaited<ReturnType<typeof runAgent>>> = [];
-      for (let i = 0; i < debate.responses.length; i++) {
-        if (runId !== debateRunId.current) return; // superseded by a newer run
-        results.push(await runAgent(debate.responses[i]));
-        if (i < debate.responses.length - 1) await sleep(1500);
+      // ONE call for the whole board (not one per agent). One gentle retry if the
+      // free-tier per-minute limit is hit, so a single transient 429 doesn't drop
+      // the entire debate to the built-in fallback.
+      let res = await callBrain({ section: "boardroom-debate", system, user, json: true });
+      if (!res.ok && res.error.code === "rate_limit") {
+        await new Promise<void>((resolve) => setTimeout(resolve, 2500));
+        res = await callBrain({ section: "boardroom-debate", system, user, json: true });
       }
       if (runId !== debateRunId.current) return;
+
+      if (!res.ok || !res.parsed) {
+        setAiAgents({});
+        setDebateError(
+          !res.ok
+            ? `Showing the built-in debate. ${brainErrorMessage(res.error)}`
+            : "Showing the built-in debate. The live AI returned no answer.",
+        );
+        return;
+      }
+
+      // Accept { agents: [...] } (preferred) or a bare [...] array.
+      const parsedObj = res.parsed as { agents?: unknown } | unknown[];
+      const rawAgents: unknown[] = Array.isArray(parsedObj)
+        ? parsedObj
+        : Array.isArray((parsedObj as { agents?: unknown }).agents)
+          ? (parsedObj as { agents: unknown[] }).agents
+          : [];
+
       const next: Record<string, AiAgentReply> = {};
-      let okCount = 0;
-      let firstError: BrainError | null = null;
-      for (const entry of results) {
-        if (entry.ok) { next[entry.agent] = entry.reply; okCount++; }
-        else if (!firstError) firstError = entry.error;
+      for (const raw of rawAgents) {
+        const parsed = AgentResponseSchema.safeParse(raw);
+        if (!parsed.success) continue;
+        const d = parsed.data;
+        // Map the model's agent name back to a known board member (tolerant match).
+        const name = d.agent.toLowerCase();
+        const match =
+          debate.responses.find((r) => r.agent.toLowerCase() === name) ??
+          debate.responses.find(
+            (r) => name.includes(r.agent.toLowerCase()) || r.agent.toLowerCase().includes(name),
+          );
+        next[match?.agent ?? d.agent] = {
+          observation: d.observation,
+          insight: d.insight,
+          recommendation: d.recommendation,
+          rationale: d.rationale,
+          confidence: Math.round(d.confidence),
+          support: stanceToSupport(d.stance),
+        };
       }
       setAiAgents(next);
-      // Report the ACTUAL reason (missing key vs rate-limit vs budget vs schema),
-      // not a hardcoded "check your key".
-      if (okCount === 0) {
-        setDebateError(
-          firstError
-            ? `Showing the built-in debate. ${brainErrorMessage(firstError)}`
-            : "Showing the built-in debate. The live AI was unavailable.",
-        );
+      if (Object.keys(next).length === 0) {
+        setDebateError("Showing the built-in debate. The live AI returned a malformed answer.");
       }
     } catch (e) {
       if (runId === debateRunId.current) setDebateError(e instanceof Error ? e.message : "Live debate failed.");
